@@ -1,0 +1,18 @@
+/*****************************************************************
+Enumerated class for the ConnectFourGame
+
+@author Molly Alger
+@version 7 October 2015
+*****************************************************************/
+
+package project2;
+
+public enum GameStatus {
+
+	Player1WON, Player2WON, Player3WON, Player4WON,
+	Player5WON, Player6WON, Player7WON, Player8WON,
+	Player9WON, Player10WON, Cats, InProgress
+	
+}
+
+

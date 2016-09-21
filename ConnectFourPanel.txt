@@ -1,0 +1,479 @@
+/*****************************************************************
+GUI for the ConnectFourGame
+
+@author Molly Alger
+@version 7 October 2015
+*****************************************************************/
+
+package project2;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.*;
+
+import javax.swing.*;
+
+public class ConnectFourPanel extends JPanel {
+
+	private JButton[][] board;
+	private JButton[] selection;
+	private ConnectFourGame game;
+	private int size;
+	private int nop;
+	private int connection;
+	private JLabel winsLabel;
+	private int firstPlayer;
+	private JButton undo;
+	private JButton reset;
+	private String[] numPlayers = {"2", "3", 
+			"4", "5", "6", "7", "8", "9", "10"};
+	private String[] players;
+	private String[] con;
+	private String[] sizes = {"3", 
+			"4", "5", "6", "7", "8", "9", "10",
+			"11", "12", "13", "14", "15", "16",
+			"17", "18", "19", "20"};
+
+
+	public ConnectFourPanel() {
+
+		game = new ConnectFourGame();
+
+		//create panels for the GUI
+		JPanel j = new JPanel();
+		j.setLayout(new BorderLayout());
+		JPanel top = new JPanel();
+		JPanel center = new JPanel();
+		JPanel bottom = new JPanel();
+		
+		ButtonListener listen = new ButtonListener();
+
+		//call a method to get user inputs from JOptionPanes
+		optionPanes();
+		
+		//set user inputs in ConnectFourGame
+		game.setBoardSize(size);
+		game.setConnectToWin(connection);
+		game.setPlayers(nop);
+		game.setCurrentPlayer(firstPlayer-1);
+		
+		//create a grid layout for the board
+		center.setLayout(new GridLayout(size, size));
+
+		//fill the board with JLabels
+		board = new JButton[size][size];
+		for (int row = 0; row < size; row++)
+			for (int col = 0; col < size; col++) {
+				board[row][col] = new JButton("X");
+				board[row][col].setPreferredSize(
+						new Dimension (75, 50));
+				board[row][col].setEnabled(false);
+				center.add(board[row][col]);
+			}
+		displayBoard(game.getBoard());
+
+		//create buttons for each column
+		selection = new JButton[size];
+		for (int col = 0; col < size; col++) {
+			selection[col] = new JButton("Select");
+			selection[col].setPreferredSize(new Dimension (75, 25));
+			selection[col].addActionListener(listen);
+			top.add(selection[col]);
+		}
+		
+		//create a label for the number of player wins
+		winsLabel = new JLabel("");
+		displayWins();
+		bottom.add(winsLabel);
+		
+		//create undo and reset buttons
+		undo = new JButton("Undo");
+		undo.addActionListener(listen);
+		bottom.add(undo);
+		reset = new JButton("Reset");
+		reset.addActionListener(listen);
+		bottom.add(reset);
+		
+		//put panels in correct places
+		add(j);
+		j.add(top, BorderLayout.NORTH);
+		j.add(center, BorderLayout.CENTER);
+		j.add(bottom, BorderLayout.SOUTH);
+		
+
+	}
+	
+	//shows JOptionPanes for user input
+	private void optionPanes(){
+		
+		//get user input for board size
+		size = Integer.parseInt((String)
+				JOptionPane.showInputDialog
+				(null, "How large is the board?", "Board Size", 
+						JOptionPane.PLAIN_MESSAGE, null, 
+						sizes, sizes[0]));
+		
+		con = new String[size];
+		for(int i = 2; i < size; i++)
+			con[i] = "" + (i+1);
+			
+		//get user input for connections to win
+		connection = Integer.parseInt((String)
+				JOptionPane.showInputDialog
+				(null, "How many connections to win?", "Connections", 
+						JOptionPane.PLAIN_MESSAGE, null, 
+						con, con[2]));
+			
+		//get user input for total players
+		nop = Integer.parseInt((String)
+					JOptionPane.showInputDialog
+					(null, "How many players?", "Players", 
+							JOptionPane.PLAIN_MESSAGE, null, 
+							numPlayers, numPlayers[0]));
+			
+		players = new String[nop];
+		for(int i = 0; i < nop; i++)
+			players[i] = "" + (i+1);
+				
+		//get user input for starting player
+			firstPlayer = Integer.parseInt((String)
+					JOptionPane.showInputDialog
+					(null, "Which player is first?", "Players", 
+							JOptionPane.PLAIN_MESSAGE, null, 
+							players, players[0]));
+		
+	}
+	
+	//displays the board based on the array in ConnectFourGame
+	private void displayBoard(int[][] a){
+		
+		//display the board based on the moves in ConnectFourGame
+		for(int i=0; i < size; i++){
+			
+			for(int j=0; j < size; j++){
+				
+				//changes the color of each button
+				if(a[i][j] == 10){
+					board[i][j].setBackground(Color.white);
+					board[i][j].setText(" ");	
+				}
+				if(a[i][j] == 0){
+					board[i][j].setBackground(Color.red);
+					board[i][j].setText(" ");	
+				}
+				if(a[i][j] == 1){
+					board[i][j].setBackground(Color.blue);
+					board[i][j].setText(" ");
+				}
+				if(a[i][j] == 2){
+					board[i][j].setBackground(Color.green);
+					board[i][j].setText(" ");
+				}
+				if(a[i][j] == 3){
+					board[i][j].setBackground(Color.yellow);
+					board[i][j].setText(" ");
+				}
+				if(a[i][j] == 4){
+					board[i][j].setBackground(Color.magenta);
+					board[i][j].setText(" ");
+				}
+				if(a[i][j] == 5){
+					board[i][j].setBackground(Color.pink);
+					board[i][j].setText(" ");
+				}
+				if(a[i][j] == 6){
+					board[i][j].setBackground(Color.orange);
+					board[i][j].setText(" ");
+				}
+				if(a[i][j] == 7){
+					board[i][j].setBackground(Color.cyan);
+					board[i][j].setText(" ");
+				}
+				if(a[i][j] == 8){
+					board[i][j].setBackground(Color.gray);
+					board[i][j].setText(" ");
+				}
+				if(a[i][j] == 9){
+					board[i][j].setBackground(Color.black);
+					board[i][j].setText(" ");
+				}
+				 
+			}
+		}
+		
+	}
+	
+	//displays the wins for each player
+	private void displayWins(){
+		String s = "";
+		for(int i = 0; i < nop; i++){
+			s = s + "Player " + (i+1) + ": " 
+					+ game.getPWins(i) + "  ";
+		}
+		winsLabel.setText(s);
+	}
+
+	private class ButtonListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			
+			//undo button function
+			if(e.getSource() == undo){
+				
+				game.undo();
+				displayBoard(game.getBoard());
+				
+			}
+			
+			//reset button function
+			if(e.getSource() == reset){
+				
+				game.reset();
+				displayBoard(game.getBoard());
+				
+			}
+			
+			for(int c = 0; c < size; c++){
+				
+				if(selection[c] == e.getSource()){
+					int row = game.selectCol(c); 
+					//displays when a column is full
+					if(row == -1){
+						JOptionPane.showMessageDialog(null, 
+								"The column is full.");
+					}
+					else{
+						displayBoard(game.getBoard());
+
+						//displays when it's a cats game
+						if(game.getGameStatus() == GameStatus.Cats){
+							int choice = JOptionPane.showOptionDialog
+									(null, "Cats Game! "
+											+ "Undo last move?",
+											"Cats", JOptionPane.
+											YES_NO_OPTION, 
+											JOptionPane.PLAIN_MESSAGE,
+											null, null, null);
+							if(choice == 0 ){
+								game.undo();
+								displayBoard(game.getBoard());
+							}
+							else{
+								game.reset();
+								displayBoard(game.getBoard());
+								displayWins();
+							}
+						}
+						
+						//determines what to display 
+							//when each player wins
+						if(game.getGameStatus() == 
+								GameStatus.Player1WON){
+							int choice = JOptionPane.showOptionDialog
+									(null, "Player 1 Wins! "
+											+ "Undo winning move?",
+											"Winner!", JOptionPane.
+											YES_NO_OPTION, 
+											JOptionPane.PLAIN_MESSAGE,
+											null, null, null);
+							if(choice == 0 ){
+								game.undo();
+								displayBoard(game.getBoard());
+							}
+							else{
+								game.reset();
+								game.setPWins(0);
+								displayBoard(game.getBoard());
+								displayWins();
+							}
+						}
+						
+						if(game.getGameStatus() == 
+								GameStatus.Player2WON){
+							int choice = JOptionPane.showOptionDialog
+									(null, "Player 2 Wins! "
+											+ "Undo winning move?",
+											"Winner!", JOptionPane.
+											YES_NO_OPTION, 
+											JOptionPane.PLAIN_MESSAGE,
+											null, null, null);
+							if(choice == 0 ){
+								game.undo();
+								displayBoard(game.getBoard());
+							}
+							else{
+								game.reset();
+								game.setPWins(1);
+								displayBoard(game.getBoard());
+								displayWins();
+							}
+						}
+						
+						 if(game.getGameStatus() == 
+								GameStatus.Player3WON){
+							 int choice = JOptionPane.showOptionDialog
+										(null, "Player 3 Wins! "
+												+ "Undo winning move?",
+												"Winner!", JOptionPane.
+												YES_NO_OPTION, 
+												JOptionPane.PLAIN_MESSAGE,
+												null, null, null);
+								if(choice == 0 ){
+									game.undo();
+									displayBoard(game.getBoard());
+								}
+								else{
+									game.reset();
+									game.setPWins(2);
+									displayBoard(game.getBoard());
+									displayWins();
+								}
+						}
+						if(game.getGameStatus() == 
+								GameStatus.Player4WON){
+							int choice = JOptionPane.showOptionDialog
+									(null, "Player 4 Wins! "
+											+ "Undo winning move?",
+											"Winner!", JOptionPane.
+											YES_NO_OPTION, 
+											JOptionPane.PLAIN_MESSAGE,
+											null, null, null);
+							if(choice == 0 ){
+								game.undo();
+								displayBoard(game.getBoard());
+							}
+							else{
+								game.reset();
+								game.setPWins(3);
+								displayBoard(game.getBoard());
+								displayWins();
+							}
+						}
+						if(game.getGameStatus() == 
+								GameStatus.Player5WON){
+							int choice = JOptionPane.showOptionDialog
+									(null, "Player 5 Wins! "
+											+ "Undo winning move?",
+											"Winner!", JOptionPane.
+											YES_NO_OPTION, 
+											JOptionPane.PLAIN_MESSAGE,
+											null, null, null);
+							if(choice == 0 ){
+								game.undo();
+								displayBoard(game.getBoard());
+							}
+							else{
+								game.reset();
+								game.setPWins(4);
+								displayBoard(game.getBoard());
+								displayWins();
+							}
+						}
+						if(game.getGameStatus() == 
+								GameStatus.Player6WON){
+							int choice = JOptionPane.showOptionDialog
+									(null, "Player 6 Wins! "
+											+ "Undo winning move?",
+											"Winner!", JOptionPane.
+											YES_NO_OPTION, 
+											JOptionPane.PLAIN_MESSAGE,
+											null, null, null);
+							if(choice == 0 ){
+								game.undo();
+								displayBoard(game.getBoard());
+							}
+							else{
+								game.reset();
+								game.setPWins(5);
+								displayBoard(game.getBoard());
+								displayWins();
+							}
+						}
+						if(game.getGameStatus() == 
+								GameStatus.Player7WON){
+							int choice = JOptionPane.showOptionDialog
+									(null, "Player 7 Wins! "
+											+ "Undo winning move?",
+											"Winner!", JOptionPane.
+											YES_NO_OPTION, 
+											JOptionPane.PLAIN_MESSAGE,
+											null, null, null);
+							if(choice == 0 ){
+								game.undo();
+								displayBoard(game.getBoard());
+							}
+							else{
+								game.reset();
+								game.setPWins(6);
+								displayBoard(game.getBoard());
+								displayWins();
+							}
+						}
+						if(game.getGameStatus() == 
+								GameStatus.Player8WON){
+							int choice = JOptionPane.showOptionDialog
+									(null, "Player 8 Wins! "
+											+ "Undo winning move?",
+											"Winner!", JOptionPane.
+											YES_NO_OPTION, 
+											JOptionPane.PLAIN_MESSAGE,
+											null, null, null);
+							if(choice == 0 ){
+								game.undo();
+								displayBoard(game.getBoard());
+							}
+							else{
+								game.reset();
+								game.setPWins(7);
+								displayBoard(game.getBoard());
+								displayWins();
+							}
+						}
+						if(game.getGameStatus() == 
+								GameStatus.Player9WON){
+							int choice = JOptionPane.showOptionDialog
+									(null, "Player 9 Wins! "
+											+ "Undo winning move?",
+											"Winner!", JOptionPane.
+											YES_NO_OPTION, 
+											JOptionPane.PLAIN_MESSAGE,
+											null, null, null);
+							if(choice == 0 ){
+								game.undo();
+								displayBoard(game.getBoard());
+							}
+							else{
+								game.reset();
+								game.setPWins(8);
+								displayBoard(game.getBoard());
+								displayWins();
+							}
+						}
+						if(game.getGameStatus() == 
+								GameStatus.Player10WON){
+							int choice = JOptionPane.showOptionDialog
+									(null, "Player 10 Wins! "
+											+ "Undo winning move?",
+											"Winner!", JOptionPane.
+											YES_NO_OPTION, 
+											JOptionPane.PLAIN_MESSAGE,
+											null, null, null);
+							if(choice == 0 ){
+								game.undo();
+								displayBoard(game.getBoard());
+							}
+							else{
+								game.reset();
+								game.setPWins(9);
+								displayBoard(game.getBoard());
+								displayWins();
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

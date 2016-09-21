@@ -1,0 +1,22 @@
+/*****************************************************************
+Main method for the ConnectFourGame
+
+@author Molly Alger
+@version 7 October 2015
+*****************************************************************/
+package project2;
+
+import javax.swing.*;
+
+public class ConnectFour {
+	
+	public static void main (String[] args)
+	{	
+		JFrame frame = new JFrame ("Connect Four!");
+		frame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
+		ConnectFourPanel panel = new ConnectFourPanel();
+		frame.getContentPane().add(panel);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		frame.setVisible(true);
+	}
+}

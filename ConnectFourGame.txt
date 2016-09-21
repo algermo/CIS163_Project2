@@ -1,0 +1,376 @@
+/*****************************************************************
+A simple Connect 4 game where the user can input the size
+of the board, the number of connections for a win, and number
+of players.
+
+@author Molly Alger
+@version 7 October 2015
+*****************************************************************/
+
+package project2;
+
+import java.util.Stack;
+
+public class ConnectFourGame {
+
+	/** the board to keep track of moves */
+	private int[][] board;
+	/** status of the current game */
+	private GameStatus status;
+	/** user who is the current player */
+	private int currentPlayer;
+	/** the size of the board being played */
+	private int boardSize;
+	/** the number of connections needed to win */
+	private int connectToWin;
+	/** integer to keep track of whose turn it is */
+	private int turnCount;
+	/** integer to keep track of who went first */
+	private int firstP;
+	/** stack to keep track of columns for undos */
+	private Stack<Integer> previousMovesC;
+	/** stack to keep track of rows for undos */
+	private Stack<Integer> previousMovesR;
+	/** array to keep track of players */
+	private int[] players;
+	/** array to keep track of player wins */
+	private int[] pWins;
+	
+	/*****************************************************************
+	 * Default constructor that sets the game in progress and sets 
+	 * defaults if the user does not enter the correct values.
+	 *****************************************************************/
+	public ConnectFourGame() {
+
+		status = GameStatus.InProgress;
+		//default values for player, size, and connections
+		currentPlayer = 0;
+		players = new int[2];
+		pWins = new int[2];
+		for(int i = 0; i < players.length; i++)
+			pWins[i] = 0;
+		boardSize = 10;
+		connectToWin = 4;
+		turnCount = currentPlayer;
+		firstP = currentPlayer;
+		board = new int[boardSize][boardSize];
+		//fill board with given variable
+		for (int row = 0; row < boardSize; row++) {
+			for (int col = 0; col < boardSize; col++) {
+				board[row][col] = 10;
+			}
+		}
+
+		previousMovesC = new Stack<Integer>();
+		previousMovesR = new Stack<Integer>();
+	}
+
+	/*****************************************************************
+	 * This method determines which row the chip will fall into.
+	 * 
+	 * @param col
+	 *            the column selected in ConnectFourPanel
+	 * @return r the row in which the chip can fall; returns -1 
+	 * 				if the column is full
+	 *****************************************************************/
+	public int selectCol(int col) {
+
+		for (int r = boardSize - 1; r >= 0; r--) {
+			if (board[r][col] == 10) {
+				//places chip in given row and column
+				board[r][col] = getCurrentPlayer();
+				//pushes the row and column in case of undos
+				previousMovesC.push(col);
+				previousMovesR.push(r);
+				//move turn count forward
+				turnCount++;
+				getGameStatus();
+				return r;
+			}
+		}
+
+		//returned if the column is full
+		return -1;
+
+	}
+
+	/*****************************************************************
+	 * Resets the board when a game is won.
+	 *****************************************************************/
+	public void reset() {
+
+		//sets the board to the empty variable
+		for (int r = 0; r < boardSize; r++) {
+			for (int c = 0; c < boardSize; c++)
+				board[r][c] = 10;
+		}
+		//reverts to original first player
+		currentPlayer = firstP;
+		//resets turn count
+		turnCount = currentPlayer;
+	}
+
+	/*****************************************************************
+	 * Checks the status of the game to find if a player has won.
+	 * 
+	 * @return status the status of the game
+	 *****************************************************************/
+	public GameStatus getGameStatus() {
+
+		int s = checkWin();
+		
+		if (s == 0) 
+			status = GameStatus.Player1WON;
+		if (s == 1) 
+			status = GameStatus.Player2WON;
+		 if (s == 2) 
+			status = GameStatus.Player3WON;
+		if (s == 3) 
+			status = GameStatus.Player4WON;
+		if (s == 4) 
+			status = GameStatus.Player5WON;
+		if (s == 5) 
+			status = GameStatus.Player6WON;
+		if (s == 6) 
+			status = GameStatus.Player7WON;
+		if (s == 7) 
+			status = GameStatus.Player8WON;
+		if (s == 8) 
+			status = GameStatus.Player9WON;
+		if (s == 9) 
+			status = GameStatus.Player10WON;
+		if (s == 10)
+			status = GameStatus.InProgress;
+		if (s == 11)
+			status = GameStatus.Cats;
+
+		return status;
+	}
+
+	/*****************************************************************
+	 * Checks the board for horizontal, vertical, and diagonal wins.
+	 * 
+	 * @return w the value of which player won; returns 11 if 
+	 * 				it's a cat's game; returns 10 if it's in progress
+	 *****************************************************************/
+	private int checkWin() {
+
+		int w = 10;
+		int touching = 0;
+		int x = currentPlayer;
+
+		for (int r = 0; r < boardSize; r++) {
+			for (int c = 0; c < boardSize; c++) {
+				
+				//check for verticals
+				for(int i = 0; i < connectToWin; i++){
+
+					if (board[(r + i) % boardSize][c] == x)
+						touching++;
+				}
+
+				if (touching == connectToWin) {
+					w = x;
+				} 
+				else {
+					touching = 0;
+				}
+				
+				//check for horizontals
+				for(int i = 0; i < connectToWin; i++){
+
+					if (board[r][(c + i) % boardSize] == x)
+						touching++;
+				}
+
+				if (touching == connectToWin) {
+					w = x;
+				} 
+				else {
+					touching = 0;
+				}
+				
+				//check for negative slope diagonals
+				for(int i = 0; i < connectToWin; i++){
+
+					if (board[(r + i) % boardSize]
+							[(c + i) % boardSize] == x)
+						touching++;
+				}
+
+				if (touching == connectToWin) {
+					w = x;
+				} 
+				else {
+					touching = 0;
+				}
+				
+				//check for positive slope diagonals
+				for(int i = 0; i < connectToWin; i++){
+
+					if ((board[(r + (boardSize - i)) % boardSize]
+							[(c + i) % boardSize]) == x)
+						touching++;
+				}
+
+				if (touching == connectToWin) {
+					w = x;
+				} 
+				else {
+					touching = 0;
+				}
+				
+				//check for a cats game
+				if(checkCats() && w == 10)
+					w = 11;
+			}
+		}
+		
+		return w;
+		
+	}
+	
+	/*****************************************************************
+	 * A method that checks for a cats game
+	 * @return the boolean of whether or not it's a cats game
+	 *****************************************************************/
+	private boolean checkCats(){
+		
+		for (int r = 0; r < boardSize; r++) {
+			for (int c = 0; c < boardSize; c++)
+				if(board[r][c] == 10)
+					return false;
+		}
+		
+		return true;
+			
+	}
+	
+	/*****************************************************************
+	 * A method that undoes previous moves
+	 * @return the boolean of whether or not it's a cats game
+	 *****************************************************************/
+	public void undo()
+	{
+		//makes sure the stacks aren't empty
+		if(!previousMovesC.isEmpty() && 
+				!previousMovesR.isEmpty()){
+			
+			int undidC = previousMovesC.pop();
+			int undidR = previousMovesR.pop();
+			
+			board[undidR][undidC] = 10;
+
+		}
+		
+		setCurrentPlayer(currentPlayer);
+	}
+
+	/*****************************************************************
+	 * A method that gets the values in the board
+	 * @return board the board array
+	 *****************************************************************/
+	public int[][] getBoard() {
+		return board;
+	}
+
+	/*****************************************************************
+	 * A method that gets the current player by using the turn count
+	 * @return currentPlayer the current player
+	 *****************************************************************/
+	public int getCurrentPlayer() {
+		currentPlayer = turnCount % players.length;
+		return currentPlayer;
+	}
+
+	/*****************************************************************
+	 * A method that sets the current player
+	 * @param currentPlayer the current player
+	 *****************************************************************/
+	public void setCurrentPlayer(int currentPlayer) {
+		this.currentPlayer = currentPlayer;
+		turnCount = currentPlayer;
+		firstP = currentPlayer;
+	}
+
+	/*****************************************************************
+	 * A method that gets the size of the board
+	 * @return boardSize the size of the board
+	 *****************************************************************/
+	public int getBoardSize() {
+		return boardSize;
+	}
+
+	/*****************************************************************
+	 * A method that sets the board size; sets the board array to
+	 * the given size.
+	 * @param boardSize the size of the board
+	 *****************************************************************/
+	public void setBoardSize(int boardSize) {
+		this.boardSize = boardSize;
+		board = new int [boardSize][boardSize];
+		for (int row = 0; row < boardSize; row++) {
+			for (int col = 0; col < boardSize; col++) {
+				board[row][col] = 10;
+			}
+		}
+	}
+
+	/*****************************************************************
+	 * A method that gets the number of connections to win
+	 * @return connectToWin the number of connections to win
+	 *****************************************************************/
+	public int getConnectToWin() {
+		return connectToWin;
+	}
+
+	/*****************************************************************
+	 * A method that sets the number of connections to win
+	 * @param connectToWin the number of connections to win
+	 *****************************************************************/
+	public void setConnectToWin(int connectToWin) {
+		this.connectToWin = connectToWin;
+	}
+	
+	/*****************************************************************
+	 * A method that sets the wins for players
+	 * @param p selected player
+	 * @param wins selected player's wins
+	 *****************************************************************/
+	public void setPWins(int p) {
+		int wins = pWins[p];
+		wins++;
+		pWins[p] = wins;
+	}
+
+	/*****************************************************************
+	 * A method that gets the wins for players
+	 * @param p selected player
+	 * @return pWins[p] selected player's wins
+	 *****************************************************************/
+	public int getPWins(int p) {
+		return pWins[p];
+	}
+	
+	/*****************************************************************
+	 * A method that sets the numbers of players
+	 * @param p number of players
+	 *****************************************************************/
+	public void setPlayers(int p) {
+		players = new int[p];
+		pWins = new int[p];
+		for(int i = 0; i < p; i++)
+			players[i] = i;
+	}
+
+	/*****************************************************************
+	 * A method that gets the players
+	 * @param the selected player
+	 * @return players[p] the selected player
+	 *****************************************************************/
+	public int getPlayers(int p) {
+		return players[p];
+	}
+	
+	
+}
